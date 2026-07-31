@@ -277,11 +277,46 @@
     border-radius:50%;
     box-shadow:0 30px 70px -20px rgba(0,0,0,0.8), 0 0 0 1px var(--line);
   }
+  .crest-badge{
+  position:absolute;
+  top:-10px; right:-10px;
+  background:var(--gold);
+  color:#1a1206;
+  width:76px; height:76px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Anton', sans-serif;
+  font-size:0.6rem;
+  letter-spacing:0.05em;
+  text-align:center;
+  transform:rotate(-12deg);
+  border:3px solid #0b0b0d;
+  box-shadow:0 8px 20px rgba(0,0,0,0.5);
+  z-index:3;
+}
   @keyframes spin{ to{ transform:rotate(360deg); } }
 
   @media (prefers-reduced-motion: reduce){
     .crest-ring::before{animation:none;}
-  }
+  }   @keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.crest-ring img{ animation: float 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .crest-ring img{ animation: none; }
+}
+  @keyframes glowPulse {
+  0%, 100% { text-shadow: 0 0 8px rgba(232,161,58,0.4), 0 0 20px rgba(232,161,58,0.15); }
+  50% { text-shadow: 0 0 16px rgba(232,161,58,0.7), 0 0 36px rgba(232,161,58,0.35); }
+}
+
+.hero h1 .accent{
+  animation: glowPulse 3s ease-in-out infinite;
+}
 
   /* ---------- Section shared ---------- */
   section{
