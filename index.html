@@ -29,7 +29,9 @@
     font-family:'Inter',sans-serif;
     overflow-x:hidden;
     -webkit-font-smoothing:antialiased;
+    
   }
+  
 
   ::selection{background:var(--gold); color:#0b0b0d;}
 
@@ -358,6 +360,11 @@
     padding:34px 30px;
     transition:background 0.25s ease;
   }
+    .service-card{
+    transition:transform 0.15s ease, background 0.25s ease;
+    transform-style:preserve-3d;
+    will-change:transform;
+  }
   .service-card:hover{background:var(--panel-2);}
   .service-card .num{
     font-family:'JetBrains Mono', monospace;
@@ -618,11 +625,11 @@
         <a class="btn" href="https://chat.inbarberapp.com/?id=2a36be72-c5c1-4db9-b6be-16e07c1c743b" target="_blank" rel="noopener">Agendar horário</a>
         <a class="btn ghost" href="#servicos">Ver serviços</a>
       </div>
-      <div class="hero-stats">
-        <div><b>+2.400</b><span>Cortes entregues</span></div>
-        <div><b>4.9</b><span>Nota dos clientes</span></div>
-        <div><b>2</b><span>Barbeiros na casa</span></div>
-      </div>
+     <div class="hero-stats">
+  <div><b class="counter" data-target="2400">0</b><span>Cortes entregues</span></div>
+  <div><b class="counter" data-target="4.9" data-decimal="1">0</b><span>Nota dos clientes</span></div>
+  <div><b class="counter" data-target="2">0</b><span>Barbeiros na casa</span></div>
+</div>
     </div>
     <div class="hero-crest">
       <div class="crest-ring">
@@ -640,19 +647,19 @@
 
 <section class="services" id="servicos">
   <div class="wrap">
-    <div class="section-head">
+   <div class="section-head reveal">
       <p class="eyebrow">A cadeira</p>
       <h2>Serviços</h2>
       <p>Cada corte é planejado antes da tesoura encostar. Escolha o serviço, chame no agendamento e garanta seu horário.</p>
     </div>
-    <div class="service-grid">
-      <div class="service-card">
+    <div class="service-grid reveal">
+      <div class="service-card reveal">
         <span class="num">01</span>
         <h3>Social</h3>
         <p>Corte clássico alinhado na tesoura e máquina, acabamento na navalha.</p>
         <div class="price">R$ 20 <span>/ sessão</span></div>
       </div>
-      <div class="service-card">
+      <div class="service-card reveal">
         <span class="num">02</span>
         <h3>Degradê</h3>
         <p>Fade navalhado com transição limpa, do baixo ao topo.</p>
@@ -777,6 +784,71 @@
   window.addEventListener('scroll', () => {
     header.classList.toggle('scrolled', window.scrollY > 30);
   }, { passive:true });
+</script>
+
+<script>
+  const revealEls = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => revealObserver.observe(el));
+</script>
+  <script>
+  function animateCounter(el) {
+    const target = parseFloat(el.getAttribute('data-target'));
+    const decimals = parseInt(el.getAttribute('data-decimal') || '0');
+    const duration = 1500;
+    const startTime = performance.now();
+
+    function update(now) {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      const value = target * eased;
+
+      if (decimals > 0) {
+        el.textContent = value.toFixed(decimals);
+      } else {
+        el.textContent = Math.round(value).toLocaleString('pt-BR') + (target >= 100 ? '+' : '');
+      }
+
+      if (progress < 1) requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  }
+
+  const counters = document.querySelectorAll('.counter');
+  const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateCounter(entry.target);
+        counterObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(el => counterObserver.observe(el));
+</script>
+  <script>
+  const tiltCards = document.querySelectorAll('.service-card');
+  tiltCards.forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rotateX = ((y - centerY) / centerY) * -6;
+      const rotateY = ((x - centerX) / centerX) * 6;
+      card.style.transform = `perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(600px) rotateX(0) rotateY(0) scale(1)';
+    });
+  });
 </script>
 
 </body>
